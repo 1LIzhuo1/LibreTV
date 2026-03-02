@@ -5,34 +5,34 @@ const customAPIs = JSON.parse(localStorage.getItem('customAPIs') || '[]'); // �
 function goBack(event) {
     // 防止默认链接行为
     if (event) event.preventDefault();
-    
+
     // 1. 优先检查URL参数中的returnUrl
     const urlParams = new URLSearchParams(window.location.search);
     const returnUrl = urlParams.get('returnUrl');
-    
+
     if (returnUrl) {
         // 如果URL中有returnUrl参数，优先使用
         window.location.href = decodeURIComponent(returnUrl);
         return;
     }
-    
+
     // 2. 检查localStorage中保存的lastPageUrl
     const lastPageUrl = localStorage.getItem('lastPageUrl');
     if (lastPageUrl && lastPageUrl !== window.location.href) {
         window.location.href = lastPageUrl;
         return;
     }
-    
+
     // 3. 检查是否是从搜索页面进入的播放器
     const referrer = document.referrer;
-    
+
     // 检查 referrer 是否包含搜索参数
     if (referrer && (referrer.includes('/s=') || referrer.includes('?s='))) {
         // 如果是从搜索页面来的，返回到搜索页面
         window.location.href = referrer;
         return;
     }
-    
+
     // 4. 如果是在iframe中打开的，尝试关闭iframe
     if (window.self !== window.top) {
         try {
@@ -43,13 +43,13 @@ function goBack(event) {
             console.error('调用父窗口closeVideoPlayer失败:', e);
         }
     }
-    
+
     // 5. 无法确定上一页，则返回首页
     if (!referrer || referrer === '') {
         window.location.href = '/';
         return;
     }
-    
+
     // 6. 以上都不满足，使用默认行为：返回上一页
     window.history.back();
 }
@@ -268,7 +268,7 @@ function initializePageContent() {
 
             // 新增：播放进度变化时节流保存
             let lastSave = 0;
-            art.video.addEventListener('timeupdate', function() {
+            art.video.addEventListener('timeupdate', function () {
                 const now = Date.now();
                 if (now - lastSave > 5000) { // 每5秒最多保存一次
                     saveCurrentProgress();
@@ -377,7 +377,7 @@ function showShortcutHint(text, direction) {
         iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>';
     } else if (direction === 'right') {
         iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>';
-    }  else if (direction === 'up') {
+    } else if (direction === 'up') {
         iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>';
     } else if (direction === 'down') {
         iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>';
@@ -526,9 +526,22 @@ function initPlayer(videoUrl) {
                 }
                 video.disableRemotePlayback = false;
 
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    video.play().catch(e => {
-                    });
+                hls.on(Hls.Events.MANIFEST_PARSED, function (eventName, data) {
+                    video.play().catch(e => { });
+
+                    // 尝试从 hls.levels 中读取最高分辨率（多码率流场景）
+                    try {
+                        const levels = hls.levels;
+                        if (levels && levels.length > 0) {
+                            // 取分辨率最高的 level
+                            const best = levels.reduce((prev, cur) =>
+                                ((cur.width * cur.height) > (prev.width * prev.height)) ? cur : prev
+                            );
+                            if (best.width && best.height) {
+                                showResolutionBadge(best.width, best.height);
+                            }
+                        }
+                    } catch (e) { }
                 });
 
                 hls.on(Hls.Events.ERROR, function (event, data) {
@@ -649,9 +662,20 @@ function initPlayer(videoUrl) {
         handleFullScreen(isFullScreen, false);
     });
 
-    art.on('video:loadedmetadata', function() {
+    art.on('video:loadedmetadata', function () {
         document.getElementById('player-loading').style.display = 'none';
         videoHasEnded = false; // 视频加载时重置结束标志
+
+        // 兜底：如果 MANIFEST_PARSED 未能获取分辨率，使用原生 video 元素的宽高
+        const resEl = document.getElementById('videoResolution');
+        if (resEl && resEl.classList.contains('hidden')) {
+            const vw = art.video && art.video.videoWidth;
+            const vh = art.video && art.video.videoHeight;
+            if (vw && vh) {
+                showResolutionBadge(vw, vh);
+            }
+        }
+
         // 优先使用URL传递的position参数
         const urlParams = new URLSearchParams(window.location.search);
         const savedPosition = parseInt(urlParams.get('position') || '0');
@@ -1117,14 +1141,14 @@ function saveToHistory() {
         duration: videoDuration,
         episodes: currentEpisodes && currentEpisodes.length > 0 ? [...currentEpisodes] : []
     };
-    
+
     try {
         const history = JSON.parse(localStorage.getItem('viewingHistory') || '[]');
 
         // 检查是否已经存在相同的系列记录 (基于标题、来源和 showIdentifier)
-        const existingIndex = history.findIndex(item => 
-            item.title === videoInfo.title && 
-            item.sourceName === videoInfo.sourceName && 
+        const existingIndex = history.findIndex(item =>
+            item.title === videoInfo.title &&
+            item.sourceName === videoInfo.sourceName &&
             item.showIdentifier === videoInfo.showIdentifier
         );
 
@@ -1136,7 +1160,7 @@ function saveToHistory() {
             existingItem.sourceName = videoInfo.sourceName; // Should be consistent, but update just in case
             existingItem.sourceCode = videoInfo.sourceCode;
             existingItem.vod_id = videoInfo.vod_id;
-            
+
             // Update URLs to reflect the current episode being watched
             existingItem.directVideoUrl = videoInfo.directVideoUrl; // Current episode's direct URL
             existingItem.url = videoInfo.url; // Player link for the current episode
@@ -1144,17 +1168,17 @@ function saveToHistory() {
             // 更新播放进度信息
             existingItem.playbackPosition = videoInfo.playbackPosition > 10 ? videoInfo.playbackPosition : (existingItem.playbackPosition || 0);
             existingItem.duration = videoInfo.duration || existingItem.duration;
-            
+
             // 更新集数列表（如果新的集数列表与存储的不同，例如集数增加了）
             if (videoInfo.episodes && videoInfo.episodes.length > 0) {
-                if (!existingItem.episodes || 
-                    !Array.isArray(existingItem.episodes) || 
-                    existingItem.episodes.length !== videoInfo.episodes.length || 
+                if (!existingItem.episodes ||
+                    !Array.isArray(existingItem.episodes) ||
+                    existingItem.episodes.length !== videoInfo.episodes.length ||
                     !videoInfo.episodes.every((ep, i) => ep === existingItem.episodes[i])) { // Basic check for content change
                     existingItem.episodes = [...videoInfo.episodes]; // Deep copy
                 }
             }
-            
+
             // 移到最前面
             const updatedItem = history.splice(existingIndex, 1)[0];
             history.unshift(updatedItem);
@@ -1439,11 +1463,11 @@ function renderResourceInfoBar() {
         console.error('找不到资源信息卡片容器');
         return;
     }
-    
+
     // 获取当前视频 source_code
     const urlParams = new URLSearchParams(window.location.search);
     const currentSource = urlParams.get('source') || '';
-    
+
     // 显示临时加载状态
     container.innerHTML = `
       <div class="resource-info-bar-left flex">
@@ -1513,7 +1537,7 @@ async function showSwitchResourceModal() {
     await Promise.all(resourceOptions.map(async (opt) => {
         let queryResult = await searchByAPIAndKeyWord(opt.key, currentVideoTitle);
         if (queryResult.length == 0) {
-            return 
+            return
         }
         // 优先取完全同名资源，否则默认取第一个
         let result = queryResult[0]
@@ -1530,27 +1554,27 @@ async function showSwitchResourceModal() {
         // 当前播放的源放在最前面
         const isCurrentA = String(keyA) === String(currentSourceCode) && String(resultA.vod_id) === String(currentVideoId);
         const isCurrentB = String(keyB) === String(currentSourceCode) && String(resultB.vod_id) === String(currentVideoId);
-        
+
         if (isCurrentA && !isCurrentB) return -1;
         if (!isCurrentA && isCurrentB) return 1;
-        
+
         // 其余按照 selectedAPIs 的顺序排列
         const indexA = selectedAPIs.indexOf(keyA);
         const indexB = selectedAPIs.indexOf(keyB);
-        
+
         return indexA - indexB;
     });
 
     // 渲染资源列表
     let html = '<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-4">';
-    
+
     for (const [sourceKey, result] of sortedResults) {
         if (!result) continue;
-        
+
         // 修复 isCurrentSource 判断，确保类型一致
         const isCurrentSource = String(sourceKey) === String(currentSourceCode) && String(result.vod_id) === String(currentVideoId);
         const sourceName = resourceOptions.find(opt => opt.key === sourceKey)?.name || '未知资源';
-        
+
         html += `
             <div class="relative group ${isCurrentSource ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 transition-transform'}" 
                  ${!isCurrentSource ? `onclick="switchToResource('${sourceKey}', '${result.vod_id}')"` : ''}>
@@ -1574,7 +1598,7 @@ async function showSwitchResourceModal() {
             </div>
         `;
     }
-    
+
     html += '</div>';
     modalContent.innerHTML = html;
 }
@@ -1583,12 +1607,12 @@ async function showSwitchResourceModal() {
 async function switchToResource(sourceKey, vodId) {
     // 关闭模态框
     document.getElementById('modal').classList.add('hidden');
-    
+
     showLoading();
     try {
         // 构建API参数
         let apiParams = '';
-        
+
         // 处理自定义API源
         if (sourceKey.startsWith('custom_')) {
             const customIndex = sourceKey.replace('custom_', '');
@@ -1608,14 +1632,14 @@ async function switchToResource(sourceKey, vodId) {
             // 内置API
             apiParams = '&source=' + sourceKey;
         }
-        
+
         // Add a timestamp to prevent caching
         const timestamp = new Date().getTime();
         const cacheBuster = `&_t=${timestamp}`;
         const response = await fetch(`/api/detail?id=${encodeURIComponent(vodId)}${apiParams}${cacheBuster}`);
-        
+
         const data = await response.json();
-        
+
         if (!data.episodes || data.episodes.length === 0) {
             showToast('未找到播放资源', 'error');
             hideLoading();
@@ -1624,20 +1648,20 @@ async function switchToResource(sourceKey, vodId) {
 
         // 获取当前播放的集数索引
         const currentIndex = currentEpisodeIndex;
-        
+
         // 确定要播放的集数索引
         let targetIndex = 0;
         if (currentIndex < data.episodes.length) {
             // 如果当前集数在新资源中存在，则使用相同集数
             targetIndex = currentIndex;
         }
-        
+
         // 获取目标集数的URL
         const targetUrl = data.episodes[targetIndex];
-        
+
         // 构建播放页面URL
         const watchUrl = `player.html?id=${vodId}&source=${sourceKey}&url=${encodeURIComponent(targetUrl)}&index=${targetIndex}&title=${encodeURIComponent(currentVideoTitle)}`;
-        
+
         // 保存当前状态到localStorage
         try {
             localStorage.setItem('currentVideoTitle', data.vod_name || '未知视频');
@@ -1651,11 +1675,35 @@ async function switchToResource(sourceKey, vodId) {
 
         // 跳转到播放页面
         window.location.href = watchUrl;
-        
+
     } catch (error) {
         console.error('切换资源失败:', error);
         showToast('切换资源失败，请稍后重试', 'error');
     } finally {
         hideLoading();
     }
+}
+
+// ==============================
+// 分辨率徽章辅助函数
+// ==============================
+
+/**
+ * 在播放器标题栏旁显示真实视频分辨率徽章
+ * @param {number} w - 宽度像素值
+ * @param {number} h - 高度像素值
+ */
+function showResolutionBadge(w, h) {
+    const el = document.getElementById('videoResolution');
+    if (!el || !w || !h) return;
+    el.textContent = `${w}×${h}`;
+    el.classList.remove('hidden');
+}
+
+/** 切换集数/视频时清除分辨率徽章 */
+function clearResolutionBadge() {
+    const el = document.getElementById('videoResolution');
+    if (!el) return;
+    el.textContent = '';
+    el.classList.add('hidden');
 }

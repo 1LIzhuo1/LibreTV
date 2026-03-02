@@ -485,9 +485,9 @@ function toggleSettings(e) {
     if (!settingsPanel) return;
 
     // 检查是否有管理员密码
-    const hasAdminPassword = window.__ENV__?.ADMINPASSWORD && 
-                           window.__ENV__.ADMINPASSWORD.length === 64 && 
-                           !/^0+$/.test(window.__ENV__.ADMINPASSWORD);
+    const hasAdminPassword = window.__ENV__?.ADMINPASSWORD &&
+        window.__ENV__.ADMINPASSWORD.length === 64 &&
+        !/^0+$/.test(window.__ENV__.ADMINPASSWORD);
 
     if (settingsPanel.classList.contains('show')) {
         settingsPanel.classList.remove('show');
@@ -644,7 +644,7 @@ async function search() {
 
         // 从所有选中的API源搜索
         let allResults = [];
-        const searchPromises = selectedAPIs.map(apiId => 
+        const searchPromises = selectedAPIs.map(apiId =>
             searchByAPIAndKeyWord(apiId, query)
         );
 
@@ -663,7 +663,7 @@ async function search() {
             // 首先按照视频名称排序
             const nameCompare = (a.vod_name || '').localeCompare(b.vod_name || '');
             if (nameCompare !== 0) return nameCompare;
-            
+
             // 如果名称相同，则按照来源排序
             return (a.source_name || '').localeCompare(b.source_name || '');
         });
@@ -759,6 +759,7 @@ async function search() {
                                  onerror="this.onerror=null; this.src='https://via.placeholder.com/300x450?text=无封面'; this.classList.add('object-contain');" 
                                  loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent"></div>
+                            ${(item.vod_remarks || '').trim() ? `<div class="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-sm">${(item.vod_remarks || '').toString().replace(/</g, '&lt;')}</div>` : ''}
                         </div>` : ''}
                         
                         <div class="p-2 flex flex-col flex-grow">
