@@ -15,22 +15,6 @@
     <link rel="apple-touch-icon" href="image/logo-black.png">
     <link rel="manifest" href="manifest.json">
 
-    <script src="libs/tailwindcss.min.js"></script>
-    <script src="libs/sha256.min.js" defer></script>
-    <script defer>
-        // 保存原始 js‑sha256 实现，避免被 password.js 覆盖
-        document.addEventListener('DOMContentLoaded', () => {
-            window._jsSha256 = window.sha256;
-        });
-    </script>
-    <script src="js/config.js" defer></script>
-    <script src="js/ui.js" defer></script>
-    <script src="js/api.js" defer></script>
-    <script src="js/douban.js" defer></script>
-    <script src="js/password.js" defer></script>
-    <script src="js/search.js" defer></script>
-    <script src="js/app.js" defer></script>
-    <script src="js/version-check.js" defer></script>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/index.css">
 </head>
@@ -520,7 +504,6 @@
     </script>
 
     <!-- 版本检测脚本 -->
-    <script src="js/version-check.js"></script>
 
     <!-- 添加弹窗和URL搜索参数处理脚本 -->
     <script src="js/index-page.js"></script>

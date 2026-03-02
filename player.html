@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="same-origin">
-    <title>LibreTV 播放器</title>
+    <title>LibreTV 播放�?/title>
 
     <!-- Favicon -->
     <link rel="icon" href="image/logo.png">
@@ -25,31 +25,31 @@
         window.__ENV__ = window.__ENV__ || {};
 
         // 注入服务器端环境变量 (将由服务器端替换)
-        // PASSWORD 变量将在这里被服务器端注入
+        // PASSWORD 变量将在这里被服务器端注�?
         window.__ENV__.PASSWORD = "{{PASSWORD}}";
         window.__ENV__.ADMINPASSWORD = "{{ADMINPASSWORD}}";
     </script>
 
-    <!-- 引入纯 JS sha256（HTTP 下依然可用） -->
-    <script src="libs/sha256.min.js" defer></script>
-    <script defer>
+    <!-- 引入�?JS sha256（HTTP 下依然可用） -->
+    <script src="libs/sha256.min.js"></script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             // 保存原始 js‑sha256 实现，避免被 password.js 覆盖
             window._jsSha256 = window.sha256;
         });
     </script>
 
-    <script src="libs/hls.min.js" crossorigin="anonymous" defer></script>
-    <script src="libs/artplayer.min.js" crossorigin="anonymous" defer></script>
+    <script src="libs/hls.min.js" crossorigin="anonymous"></script>
+    <script src="libs/artplayer.min.js" crossorigin="anonymous"></script>
 
-    <script src="js/config.js" defer></script>
-    <script src="js/password.js" defer></script>
-    <script src="js/ui.js" defer></script>
-    <script src="js/api.js" defer></script>
-    <script src="js/search.js" defer></script>
-    <script src="js/player.js" defer></script>
+    <script src="js/config.js"></script>
+    <script src="js/password.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/player.js"></script>
 
-    <script defer>
+    <script>
         // 修复 home 跳转
         document.addEventListener('DOMContentLoaded', function () {
             // 使用事件委托处理首页按钮点击
@@ -62,7 +62,7 @@
                     // 如果是在iframe中打开的，尝试关闭iframe
                     if (window.self !== window.top) {
                         try {
-                            // 尝试调用父窗口的关闭播放器函数
+                            // 尝试调用父窗口的关闭播放器函�?
                             window.parent.closeVideoPlayer && window.parent.closeVideoPlayer(true);
                             return;
                         } catch (e) {
@@ -112,7 +112,7 @@
                 <path d="M5.25 11h15a1.5 1.5 0 1 1 0 3H5.25a1.5 1.5 0 0 1 0-3z" />
                 <path d="M5.55 12 11.3 17.3a1.5 1.5 0 1 1-2.12 2.12L3 12l6.18-6.18a1.5 1.5 0 1 1 2.12 2.12L5.55 12z" />
             </svg>
-            <span class="home-btn-text">上一页</span>
+            <span class="home-btn-text">上一�?/span>
         </a>
     </header>
 
@@ -124,7 +124,7 @@
                 <h2 class="text-2xl font-bold gradient-text">访问验证</h2>
             </div>
             <div class="mb-6">
-                <p class="text-gray-300 mb-4">请输入密码继续访问</p>
+                <p class="text-gray-300 mb-4">请输入密码继续访�?/p>
                 <form id="passwordForm" onsubmit="handlePasswordSubmit(); return false;">
                     <input type="text" name="username" id="username" autocomplete="username" style="display:none"
                         tabindex="-1" aria-hidden="true">
@@ -139,7 +139,7 @@
         </div>
     </div>
 
-    <main class="container mx-auto px-4 py-4"> <!-- 视频播放区 -->
+    <main class="container mx-auto px-4 py-4"> <!-- 视频播放�?-->
         <div id="playerContainer" class="player-container mb-4">
             <div class="relative">
                 <div id="player" class="player-placeholder">
@@ -156,14 +156,14 @@
                 <div class="error-container" id="error">
                     <div class="error-icon">⚠️</div>
                     <div id="error-message">视频加载失败</div>
-                    <div class="error-message-sub">请尝试其他视频源或稍后重试</div>
+                    <div class="error-message-sub">请尝试其他视频源或稍后重�?/div>
                 </div>
             </div>
         </div>
 
-        <!-- 源信息 -->
+        <!-- 源信�?-->
         <div class="player-container flex justify-between py-2 px-4 mb-2 bg-gray-700" id="resourceInfoBarContainer">
-            <!-- 资源信息卡片、切换按钮、视频数将由JS动态渲染 -->
+            <!-- 资源信息卡片、切换按钮、视频数将由JS动态渲�?-->
         </div>
 
         <!-- 集数导航 -->
@@ -175,12 +175,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
                         </path>
                     </svg>
-                    上一集
+                    上一�?
                 </button>
-                <span class="text-gray-400" id="episodeInfo">加载中...</span>
+                <span class="text-gray-400" id="episodeInfo">加载�?..</span>
                 <button onclick="playNextEpisode()" id="nextButton"
                     class="px-4 py-2 bg-[#222] hover:bg-[#333] border border-[#333] rounded-lg transition-colors">
-                    下一集
+                    下一�?
                     <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
@@ -191,7 +191,7 @@
         <!-- 添加自动播放开关和排序按钮 -->
         <div class="player-container mb-2">
             <div class="flex flex-wrap justify-end items-center gap-2">
-                <!-- 自动连播开关 - 分组到左边 -->
+                <!-- 自动连播开�?- 分组到左�?-->
                 <div class="flex items-center gap-1 flex-shrink-0 mr-auto">
                     <span class="text-gray-400 text-sm whitespace-nowrap">自动连播</span>
                     <label class="switch">
@@ -200,7 +200,7 @@
                     </label>
                 </div>
 
-                <!-- 把各种功能按钮放在右侧 - 在小屏幕上各自占一行 -->
+                <!-- 把各种功能按钮放在右�?- 在小屏幕上各自占一�?-->
                 <div class="flex flex-wrap justify-end gap-2">
                     <!-- 倒序排列按钮 -->
                     <button onclick="toggleEpisodeOrder()"
@@ -241,14 +241,14 @@
         <div class="player-container">
             <div class="episode-grid" id="episodesGrid">
                 <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2" id="episodesList">
-                    <!-- 集数将在这里动态加载 -->
-                    <div class="col-span-full text-center text-gray-400 py-8">加载中...</div>
+                    <!-- 集数将在这里动态加�?-->
+                    <div class="col-span-full text-center text-gray-400 py-8">加载�?..</div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- 添加快捷键提示元素 -->
+    <!-- 添加快捷键提示元�?-->
     <div class="shortcut-hint" id="shortcutHint">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="shortcutIcon">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -269,13 +269,13 @@
                         </svg>
                         <span class="gradient-text font-bold">LibreTV</span>
                     </div>
-                    <p class="text-gray-500 text-sm mt-2 text-center md:text-left">© 2025 LibreTV - 自由观影，畅享精彩</p>
+                    <p class="text-gray-500 text-sm mt-2 text-center md:text-left">© 2025 LibreTV - 自由观影，畅享精�?/p>
                 </div>
 
                 <div class="text-center md:text-right">
                     <p class="text-gray-500 text-sm max-w-md">
-                        免责声明：本站仅为视频搜索工具，不存储、上传或分发任何视频内容。
-                        所有视频均来自第三方API接口。如有侵权，请联系相关内容提供方。
+                        免责声明：本站仅为视频搜索工具，不存储、上传或分发任何视频内容�?
+                        所有视频均来自第三方API接口。如有侵权，请联系相关内容提供方�?
                     </p>
                     <div class="mt-2 flex justify-center md:justify-end space-x-4">
                         <a href="about.html" class="text-gray-400 hover:text-white text-sm transition-colors">关于我们</a>
@@ -304,13 +304,28 @@
         </div>
     </div>
 
-    <!-- 添加 loading 提示框 -->
+    <!-- 添加 loading 提示�?-->
     <div id="loading" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[10001]">
         <div class="bg-[#111] p-8 rounded-lg border border-[#333] flex items-center space-x-4">
             <div class="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-white text-lg">加载中...</p>
+            <p class="text-white text-lg">加载�?..</p>
         </div>
     </div>
+
+    <!-- 引入�?JS sha256（HTTP 下依然可用） -->
+    <script src="libs/sha256.min.js"></script>
+    <script>
+        // 保存原始 js‑sha256 实现，避免被 password.js 覆盖
+        window._jsSha256 = window.sha256;
+    </script>
+    <script src="libs/hls.min.js" crossorigin="anonymous"></script>
+    <script src="libs/artplayer.min.js" crossorigin="anonymous"></script>
+    <script src="js/config.js"></script>
+    <script src="js/password.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/player.js"></script>
 
 </body>
 
